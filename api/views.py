@@ -23,11 +23,10 @@ def create_checks(request):
     if Check.objects.filter(order__order__id=order['order']['id']):
         return JsonResponse({'error': 'Для данного заказа уже созданы чеки'}, status=400)
 
-    # queue = django_rq.get_queue('default')
+    queue = django_rq.get_queue('default')
     for printer in printers:
         check = Check.objects.create(printer_id=printer, type=printer.check_type, order=order, status='NW')
-        # queue.enqueue(create_pdf, check)
-        create_pdf(check)
+        queue.enqueue(create_pdf, check)
     return JsonResponse({'ok': 'Чеки успешно созданы'}, status=200)
 
 
